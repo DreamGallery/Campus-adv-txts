@@ -1,0 +1,65 @@
+name: Auto Update
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+
+jobs:
+  update_adv:
+    runs-on: ubuntu-latest
+
+    env:
+      revision: 0
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        path: main
+
+    - name: Get local revision if exist
+      if: ${{ hashFiles('main/revision') != '' }}
+      run: |
+        echo "revision=$(cat main/revision)" >> "$GITHUB_ENV"
+
+    - name: Setup Python environment
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Get HatsuboshiToolkit and switch barch to adv_txt
+      uses: actions/checkout@v4
+      with:
+        repository: DreamGallery/HatsuboshiToolkit
+        ref: adv_txt
+        path: HatsuboshiToolkit
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+      working-directory:
+        HatsuboshiToolkit
+    
+    - name: Run script to check update
+      run: |
+        python main.py --reset True --init_download True --db_revision $revision
+      working-directory:
+        HatsuboshiToolkit
+
+    - name: copy local revision file to repo
+      run: |
+        echo "revision=$(cat cache/revision)" >> "$GITHUB_ENV"
+        cp cache/revision ../main
+      working-directory:
+        HatsuboshiToolkit
+    
+    - name: copy txts to repo
+      run: |
+        cp -r cache/Resource ../main
+      working-directory:
+        HatsuboshiToolkit
+
+    - name: Commit update
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: update ${{ env.revision }}
+        repository: main
