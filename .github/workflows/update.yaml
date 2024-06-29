@@ -2,14 +2,19 @@ name: Auto Update
 
 on:
   schedule:
-    - cron: '0 * * * *'
+    - cron: '*/10 * * * *'
 
 jobs:
   update_adv:
+    if: github.repository == 'DreamGallery/Campus-adv-txts'
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
 
     env:
       revision: 0
+      has_update: False
 
     steps:
     - uses: actions/checkout@v4
@@ -45,20 +50,18 @@ jobs:
       working-directory:
         HatsuboshiToolkit
 
-    - name: copy local revision file to repo
+    - name: copy files to repo
+      if: ${{ hashFiles('HatsuboshiToolkit/cache/revision') != '' }}
       run: |
         echo "revision=$(cat cache/revision)" >> "$GITHUB_ENV"
         cp cache/revision ../main
-      working-directory:
-        HatsuboshiToolkit
-    
-    - name: copy txts to repo
-      run: |
         cp -r cache/Resource ../main
+        echo "has_update=True" >> "$GITHUB_ENV"
       working-directory:
         HatsuboshiToolkit
 
     - name: Commit update
+      if: ${{ env.has_update }}
       uses: stefanzweifel/git-auto-commit-action@v5
       with:
         commit_message: update ${{ env.revision }}
