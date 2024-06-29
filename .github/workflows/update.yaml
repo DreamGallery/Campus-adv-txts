@@ -2,7 +2,7 @@ name: Auto Update
 
 on:
   schedule:
-    - cron: '*/10 * * * *'
+    - cron: '0 * * * *'
 
 jobs:
   update_adv:
@@ -14,7 +14,6 @@ jobs:
 
     env:
       revision: 0
-      has_update: False
 
     steps:
     - uses: actions/checkout@v4
@@ -51,18 +50,15 @@ jobs:
         HatsuboshiToolkit
 
     - name: copy files to repo
-      if: ${{ hashFiles('HatsuboshiToolkit/cache/revision') != '' }}
       run: |
         echo "revision=$(cat cache/revision)" >> "$GITHUB_ENV"
         cp cache/revision ../main
         cp -r cache/Resource ../main
-        echo "has_update=True" >> "$GITHUB_ENV"
       working-directory:
         HatsuboshiToolkit
 
     - name: Commit update
-      if: ${{ env.has_update }}
       uses: stefanzweifel/git-auto-commit-action@v5
       with:
-        commit_message: update ${{ env.revision }}
+        commit_message: update revision ${{ env.revision }}
         repository: main
