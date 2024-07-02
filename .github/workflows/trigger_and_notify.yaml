@@ -1,0 +1,33 @@
+name: Trigger and notify
+
+on:
+  push:
+    paths:
+      - 'Resource/**'
+
+jobs:
+  trigger_and_notify:
+    if: github.repository == 'DreamGallery/Campus-adv-txts'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Trigger Workflow in Campus-adv-ass
+      run: |
+        curl -X POST https://api.github.com/repos/DreamGallery/Campus-adv-ass/dispatches \
+        -H "Accept: application/vnd.github.everest-preview+json" \
+        -H "Authorization: token ${{ secrets.PAT }}" \
+        --data '{"event_type": "origin_update"}'
+    
+    - name: Send message to discord
+      uses: sarisia/actions-status-discord@v1
+      if: always()
+      with:
+        webhook: ${{ secrets.DISCORD_WEBHOOK }}
+        nodetail: true
+        title: "New commu (adv txts) available!"
+        url: "https://github.com/DreamGallery/Campus-adv-txts"
+        description: |
+          ${{ github.event.head_commit.message }}
+

@@ -18,6 +18,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
+        token: ${{ secrets.PAT }}
         path: main
 
     - name: Get local revision if exist
@@ -61,13 +62,5 @@ jobs:
       uses: stefanzweifel/git-auto-commit-action@v5
       id: auto-commit-action
       with:
-        commit_message: update revision ${{ env.revision }}
+        commit_message: Update database revision to ${{ env.revision }}
         repository: main
-
-    - name: Trigger Workflow in Campus-adv-ass
-      if: steps.auto-commit-action.outputs.changes_detected == 'true'
-      run: |
-        curl -X POST https://api.github.com/repos/DreamGallery/Campus-adv-ass/dispatches \
-        -H "Accept: application/vnd.github.everest-preview+json" \
-        -H "Authorization: token ${{ secrets.PAT }}" \
-        --data '{"event_type": "origin_update"}'
