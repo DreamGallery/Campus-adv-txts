@@ -13,9 +13,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Trigger Workflow in Campus-adv-ass
+    - name: Trigger Workflow in Campus-Story
       run: |
-        curl -X POST https://api.github.com/repos/DreamGallery/Campus-adv-ass/dispatches \
+        curl -X POST https://api.github.com/repos/DreamGallery/Campus-Story/dispatches \
         -H "Accept: application/vnd.github.everest-preview+json" \
         -H "Authorization: token ${{ secrets.PAT }}" \
         --data '{"event_type": "origin_update"}'
