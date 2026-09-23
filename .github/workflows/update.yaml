@@ -3,12 +3,12 @@ name: Auto Update
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 * * * *'
+    - cron: '15 * * * *'
 
 jobs:
   update_adv:
     if: github.repository == 'DreamGallery/Campus-adv-txts'
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     permissions:
       contents: write
