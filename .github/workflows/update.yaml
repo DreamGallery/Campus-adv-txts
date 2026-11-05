@@ -2,6 +2,12 @@ name: Auto Update
 
 on:
   workflow_dispatch:
+    inputs:
+      full_update:
+        description: 'Full text update (re-download and overwrite existing texts)'
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   update_adv:
@@ -21,7 +27,7 @@ jobs:
         path: main
 
     - name: Get local revision if exist
-      if: ${{ hashFiles('main/revision') != '' }}
+      if: ${{ !inputs.full_update && hashFiles('main/revision') != '' }}
       run: |
         echo "revision=$(cat main/revision)" >> "$GITHUB_ENV"
 
